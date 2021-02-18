@@ -1,0 +1,12 @@
+name: football_ml_demo__
+title: football_ml_demo__
+username:
+account: pigz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3558134
+bundleId: 4166549
+url: https://pigz.shinyapps.io/football_ml_demo__/
+when: 1612176415.99746
+asMultiple: FALSE
+asStatic: FALSE
