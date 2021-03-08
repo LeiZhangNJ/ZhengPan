@@ -1,3 +1,6 @@
-main,r
+main.r
 Main.R
-
+rsconnect/
+*.DS_Store
+*.Rhistory
+*.RData
