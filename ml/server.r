@@ -162,7 +162,7 @@ shinyServer(
         tsk_df$st <- as.factor(tsk_df$st)
         task <- TaskClassif$new(id = "task", backend = tsk_df, target = "st")
         set.seed(12345)
-        tt1 <- lapply(1:200, function(s){
+        tt1 <- lapply(1:20, function(s){
           temp <- lapply(1:15, function(q){
             # print(q)
             # q = 2 
@@ -210,7 +210,7 @@ shinyServer(
       tsk_df$st <- as.factor(tsk_df$st)
       task <- TaskClassif$new(id = "task", backend = tsk_df, target = "st")
       set.seed(12345)
-      tt1 <- lapply(1:200, function(s){
+      tt1 <- lapply(1:20, function(s){
         temp <- lapply(1:15, function(q){
           # print(q)
           # q = 2 
