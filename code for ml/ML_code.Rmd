@@ -1,24 +1,22 @@
 ---
-title: "code for machine learning"
+title: "ML Code"
 author: "Zheng Pan"
-date: "7/5/2021"
+date: "7/18/2021"
 output: 
   pdf_document:
-    toc: true
-tables: true
+    keep_tex: true
+
 ---
 
 ```{r eval=TRUE, include=FALSE}
 knitr::opts_chunk$set(eval=FALSE, include=TRUE)
-st1 <- as.data.frame(read.csv(file = '~/Desktop/ZhengPan/workspace/Github/Zhang-NJ-Lab_ZhengPan/ml/www/光电流数据yingwenred.csv'))
-paths <- '~/desktop/SVMpredions.csv'
 ```
 
 \newpage
 
 # Introduction
 
-This is a slide which demonstrates the a workflow using R programming language.
+This is a sophisticated tutorial on Machine Learning using R programming language.
 The dependent value is continuous in this case.
 
 \newpage
@@ -37,9 +35,9 @@ The dependent value is continuous in this case.
 
 ## prerequisites
 
--   load requried libraries
+-   load required libraries
 
-```{r message=FALSE, warning=FALSE,eval=TRUE, include=TRUE}
+```{r message=FALSE, warning=FALSE, eval=TRUE, include=TRUE}
 library('tidyverse')
 library('mlr3')
 library('mlr3verse')
@@ -48,12 +46,29 @@ library('reshape2')
 library('GenSA')
 ```
 
+If you get an error loading them, you should probably install or update some of required packages using :
+
+```{r}
+install.packages("NAME OF PACKAGE")
+```
+
+-   initialize file paths
+
+```{r eval=TRUE}
+# Change your path to your .csv
+path_of_file <- '~/Desktop/ml_code/photocurrent.csv'
+st1 <- as.data.frame(read.csv(file = path_of_file))
+# Change your path for prediction set
+path_for_prediction <- '~/desktop/predions.csv'
+```
+
+THe path above is path on my laptop, users shall change them according to their own laptops.  
+
 ------------------------------------------------------------------------
 
--   function that generates pearson heat map
+-   Create a function that generates pearson heat map
 
 ```{r message=FALSE, warning=FALSE}
-options(width=80)
 pearson_heat <- function(df, corm = -1){
   defaultW <- getOption("warn") 
   options(warn = -1) 
@@ -77,7 +92,7 @@ pearson_heat <- function(df, corm = -1){
 }
 ```
 
--   feature selecting by pearson correlation coefficient
+-   Create a function which selects feature by pearson correlation coefficient
 
 ```{r}
 fea_slc_bycor <- function(df, corr = 0.8){
@@ -96,9 +111,15 @@ fea_slc_bycor <- function(df, corr = 0.8){
 }
 ```
 
+
+------------------------------------------------------------------------
+
 -   import data
 
 -   prepare the prediction set
+
+Code in this section generates a data.frame which is meant for prediction set. Note this, in this case, the number of descriptors which are suppuosed to change to generate a prediction set is three and in other cases the number might change and the code below shall change accordingly.  \newline
+It's not the best code that generates prediction set(it might be slow for larger descriptor amount)
 
 ```{r}
 tsk_df1 <- lapply(unique(st1$X), function(s){
@@ -123,6 +144,8 @@ tsk_df1 <- lapply(unique(st1$X), function(s){
   df4
 })
 ```
+
+------------------------------------------------------------------------
 
 -   feature engineering
 
@@ -168,7 +191,6 @@ measure <- msr("regr.rmse")
 prediction$score(measure)
 autoplot(prediction) +
   theme_bw()
-
 df1 <- rbind(cbind(prediction$response, 1: length(prediction$response),
                    'response'), cbind(prediction$truth,
                     1:length(prediction$truth), 'truth'))
@@ -199,18 +221,9 @@ pred <- lapply(1:length(ind_seq_l), function(q){
   data.frame(prediction2$response)
 })
 preds <- do.call(rbind, pred)
-
-
 to_w <- st2[(NN+1): nrow(st2),]
 to_w[, ncol(to_w)] <- preds
-
 write_csv(to_w, file = paths)
 ```
-
-
-
-
-
-
 
 
