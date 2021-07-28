@@ -1,0 +1,218 @@
+---
+title: "Combinations"
+author: "Zheng Pan"
+date: "7/18/2021"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r eval=TRUE, include=FALSE}
+knitr::opts_chunk$set(eval=TRUE, include=TRUE)
+```
+
+\newpage
+
+# Introduction
+
+This is a tutorial on how do we merge vectors into a matrix, whose element is the combination of elements of vectors.  
+
+The library 'dplyr' in library 'tidyverse' provides functions that can easily get the job done. But we will not mention it here( maybe it will be mentioned in later updates).  
+
+In this tutorial we are just ganna use several 'for' iterations.  
+
+\newpage
+
+# code
+
+## prerequisites
+
+### load required libraries
+
+```{r message=FALSE, warning=FALSE, eval=TRUE, include=TRUE}
+library('tidyverse')
+library('readr') 
+# This library entitles us to read .csv more properly
+# by using read_csv() or read_csv2().
+# Users can also use R's basic file input function: 'read.csv()'
+```
+
+If you get an error loading it, you should probably install or update some of required packages using :
+
+```{r eval=FALSE, include=TRUE}
+install.packages("NAME OF PACKAGE")
+```
+
+------------------------------------------------------------------------
+
+### Input all possible choice of A, B and X   
+
+```{r}
+A <- c('Li', 'Na', 'K', 'Rb', 'Cs')
+B <- c('Ge', 'Sn', 'Pb')
+X <- c('F', 'Cl', 'Br', 'I')
+```
+
+
+### Create a function named od()    
+
+Function od() ranks the position of a vector ascendingly according to the position of the element predefined above.   
+
+```{r}
+od <- function(f_s){
+  str_c(sort((as.numeric(strsplit(f_s, ',')[[1]]))), collapse = ',')
+}
+```
+
+For example: 
+
+```{r}
+od("3,2,1,1")
+```
+
+The number indicates the position of elements in A, B or X.   
+That is to say, "3,2,1,1" means "K,Na,Li,Li" in A.    
+
+### Create a function named conver_ele    
+
+Create a function through the name of element if converted from numbers od() produced.    
+It takes 2 parameter: f_s and f_pos.    
+f_s is the string of numbers that shall be produced by od().    
+f_pos is the position of element, if should be 'A' or 'X'.    
+
+```{r}
+conver_ele <- function(f_s,f_pos){
+  if(f_pos == "A"){
+    str_c(A[as.numeric(strsplit(f_s, ',')[[1]])], collapse = ',')
+  }else if(f_pos == "X"){
+    str_c(X[as.numeric(strsplit(f_s, ',')[[1]])], collapse = ',')
+  }else{
+    NULL
+  }
+}
+```
+
+
+For example:
+
+```{r}
+conver_ele(f_s = "1,1,2,3", f_pos = "A")
+```
+
+```{r}
+conver_ele(f_s = "1,1,2,3", f_pos = "X")
+```
+
+
+## Construction of A4BX6
+
+With such a long prelude, finally we can do what we want:   
+
+### Construction of A4
+
+The main idea is that first we use a 4-dimensional array to save the information of A, in which each dimension stands for 'A1','A2','A3' or 'A4' respectively.   
+
+Then we collapse it into one-dimensional vector.
+
+```{r}
+A_arr <- array(rep(0, 5^4), c(5,5,5,5))
+for (s1 in 1:5) {
+  for (s2 in 1:5) {
+    for (s3 in 1:5) {
+      for (s4 in 1:5) {
+            A_arr[s1, s2, s3, s4] <- od(paste(s1, s2, s3, s4, sep = ','))
+      } 
+    } 
+  }
+}
+A_vec <- as.vector(A_arr)
+```
+
+First 10 elements of A_vec is :     
+```{r}
+data.frame(A = A_vec[1:10])
+```
+
+We can see that the second and the sixth element is same, we must remove duplicated elements.   
+That's why we rank them above.    
+Now we remove duplicated elements using the code below, which shows the meaning literally, through which we can feel the charm of R.
+
+```{r}
+A_vec <- A_vec[!duplicated(A_vec)]
+```
+
+Now we convert numbers to names unsing conver_ele().    
+
+```{r}
+A_vec <- sapply(1:length(A_vec), function(q){
+  conver_ele(A_vec[q], 'A')
+})
+```
+
+The first 20 combinations of A are:     
+```{r}
+data.frame(A = A_vec[1:20])
+```
+
+
+### Same for X    
+
+```{r}
+X_arr <- array(rep(0, 4^6), c(4,4,4,4,4,4))
+for (s1 in 1:4) {
+  for (s2 in 1:4) {
+    for (s3 in 1:4) {
+      for (s4 in 1:4) {
+        for (s5 in 1:4) {
+          for (s6 in 1:4) {
+            X_arr[s1, s2, s3, s4, s5, s6] <- od(paste(s1, s2, s3, s4, s5, s6, sep = ','))
+          } 
+        } 
+      } 
+    } 
+  }
+}
+X_vec <- as.vector(X_arr)
+X_vec <- X_vec[!duplicated(X_vec)]
+X_vec <- sapply(1:length(X_vec), function(q){
+  conver_ele(X_vec[q], 'X')
+})
+```
+
+The first 20 combinations of X are:     
+
+```{r }
+data.frame(X = X_vec[1:20])
+```
+
+### Aggregate A, B and X    
+
+```{r}
+A4BX6 <- array(0, c(length(A_vec), length(B), length(X_vec)))
+for (a in 1:length(A_vec)) {
+  for (b in 1:length(B)) {
+    for (x in 1:length(X_vec)) {
+      A4BX6[a, b, x] <-  str_c(A_vec[a], B[b], X_vec[x], sep = ',')
+    }
+  }
+}
+A4BX6 <- as.vector(A4BX6)
+```
+
+The first 20 combinations of A4BX6 are:     
+```{r }
+data.frame(A4BX6 = A4BX6[1:20])
+```
+
+The total number of combinations of A4BX6 is :`r length(A4BX6)`.     
+
+
+
+
+
+
+
+
+
+
